@@ -1,0 +1,234 @@
+@ Chapter 1 Summary
+
+* Alias
+$ alias ls='ls --color=auto --time-style=long-iso'
+: xxxx-xx-xx 형식으로 날짜 포맷 변경 
+$ alias ls='ls --color=auto --time-style=locale'
+: 가장 처음에 설정했던 방식으로 바꾸기
+$ alias ls='ls --color=auto --time-style=full-iso'
+: 가장 정확한 시간 설정 방식으로 바꾸기
+$ source /etc/bashrc
+$ source .bash_aliases
+: 변경사항 환경에 적용하기
+
+$ env | grep LANG
+: 환경 변수 중 언어 관련 설정 보기
+
+
+$ su - 
+: 일반 유저가 슈퍼유저로 사용 전환을 하기 위한 명령
+
+#!/bin/bash: 배시셀의 경우 가장 윗단에 작성
+#!/usr/bin/python: 파이썬의 경우
+
+
+* ENV VARIABLE
+$ echo $SHELL
+: 현재 사용중인 쉘 종류를 나타내줌
+$ ps $$
+$ echo $$
+: $는 현재 shell의 PID를 가지는 변수
+$ env
+$ printenv
+$ printf "%s\n" $FILENAME
+$ echo "$FILENAME" 혹은 echo "${FILENAME}"
+: (특정)환경변수 출력하기
+$ date '+%H:%M:%S'
+: 오늘 날짜와 시간을 위와 같은 형식으로 출력
+$ FILENAME="test.txt"
+: 변수명 작성시, ""로 묶기. 공백이 생기면 error
+$ DATE=`date` 혹은 DATE=$(date)
+: 기존 변수를 새로운 변수에 할당하기
+$ set
+: 환경변수를 포함하여 모든 변수들과 함수들 목록 보여줌.
+$ export VAR="value"
+: 지역 변수를 환경 변수로 바꾸는 방법.
+
+
+$ logout
+$ exit
+: 현재의 쉘을 종료
+
+$ !!
+: 최근 수행했던 명령어 수행
+$ !l
+: 최근에 수행했던 명령어 중, l로 시작하는 명령어 수행
+
+$ date; sleep 2; !#
+: date를 수행하고, 2초 뒤에 date를 두번 실행. 두 번 실행시 !# 사용
+
+* DIRECTORY / FILE
+$ tree -L 2
+: 깊이 2만큼에 디렉터리 트리를 보여줌
+$ which bash
+$ whereis bash
+$ find /bin -name bash -exec ls -l '{}' \;
+: bash 실행파일의 위치를 검색하고자 할 때.
+
+$ ls [ts]*
+: t 또는 s로 시작하는 모든 파일 나열
+$ ls [[:upper:]]*
+: 대문자로 시작하는 모든 파일 나열
+$ ls [![:upper:]].*
+: 소문자로 끝나는 모든 파일 나열
+
+* REDIRECTION 예제
+$ cat /dev/null 2>&1 &
+: 표준출력 1이 전달되는 곳으로 표준 에러2도 전달. 이를 백그라운드에서 수행
+$ sort < ls.txt
+: ls.txt를 입력파일로 설정하여 sort시키기  
+
+* PIPE 예제
+$ du -h --max-depth 1 | sort -nr
+: 현재 디렉토리부터 깊이 1만큼만 출력. 내림차순 파일 크기 순서로 파일 정렬 
+$ du -h * | sort -nr > $HOME/script.txt
+: du 명령어는 용량을 알아보기 위한 명령.
+: sort -n은 알파벳/숫자 기준으로 오름차순, -r은 반대로
+$ find . -type f -print | wc -l
+: file 타입들을 프린트 하되, 라인의 개수를 카운트해서 파일 수를 찾는 방법. 
+
+* Permission 관련
+$ chown root:root perm.txt
+: perm 파일의 소유자와 그룹을 root로 세팅
+$ chgrp multi perm.txt
+: perm 파일의 그룹을 multi로 변경
+$ lsattr perm.txt
+: perm.txt의 속성 보기
+$ chattr +(+-i/+-a) perm.txt
+: perm의 속성을 각 옵션으로 변경 
+: (슈퍼유저 변경,삭제 불가/ 슈퍼유저 내용 추가 가능, 삭제 불가)
+: 추가시 +, 삭제시 -를 사용.
+
+* Job 관련
+$ ps -ef
+$ pstree -p
+$ ps aux --forest
+$ ps -p | head -n 15
+: 시스템에서 실행되고 있는 프로세스 목록 보기
+: p 옵션은 pid 함께 출력
+$ kill %10
+$ kill -9 10
+: PID가 10인 프로그램 종료
+$ jobs
+: 현재 쉘에서 자신의 프로세스 목록 보기
+$ bg
+: 프로세스를 백그라운드로 보내기
+$ fg
+: 프로세스를 포그라운드로 가져오기
+
+* User와 Group
+$ who -q
+$ users
+: 현재 로그인 되어있는 유저를 출력
+$ groups
+: 현재 쉘에 접속해있는 유저가 속한 group 들을 출력
+$ useradd guest
+$ adduser guest
+: 유저를 추가할 때 사용하는 명령어
+$ passwd guest
+: 해당 user의 비밀번호를 변경하는 경우 사용
+$ userdel -r guest
+: guest 계정을 삭제하되, 생성된 홈디렉터리부터 모두 삭제
+$ ac -d
+: /var/log/wtmp 파일로부터 유저의 로그인 시간을 시간 단위로 출력
+$ last reboot
+: /var/log/wtmp 파일로부터 유저의 마지막 로그인 시간 출력. 
+: reboot 옵션 사용하는 경우, reboot한 날짜와 시간 출력.
+: 유저 이름을 옵션으로 사용 한다면, 유저에 대한 로그인 시간 출력.
+
+* Terminal 관련
+$ w
+: 현재 유저의 터미널을 출력
+$ ssty -a
+: 터미널 설정을 출력/변경 가능
+$ setterm -cursor off/on
+: 터미널에서 커서를 끌/켤 수 있다.
+$ wall "Rebppt after 5 minutes. Please logout."
+: 모든 서버 접속자들에게 위와 같은 메세지를 보냄.
+$ write guest
+: guest 유저에게 해당 메세지. 적을 메세지를 적은 후 Ctrl C를 부르면 발송.
+$ hostname
+: /etc/sysconfig/network 파일에 지정되어 있는 hostname을 출력.
+
+
+* Process Manager/Booting
+$ shutdown -h now
+: 시스템 즉시 종료
+$ shutdown -r now
+$ reboot
+: 시스템 리부팅
+
+* Network
+$ ifconfig eth0 down/up
+: 첫 번째 이더넷 카드를 종료/시작
+$ iwconfig
+: 무선랜 네트워크 인터페이스 환경 출력
+$ ip link show
+: 라우팅, 터널 정책을 출력하고 조작
+$ route
+: 커널 라우팅 테이블 정보를 출력/변경 가능
+
+* File System
+$ mount -t iso9660 /dev/cdrom /media/cdrom
+: cdrom을 마운트하기. 
+$ mount -o loop -t iso9660 -r cd_image.iso /media/cdimg
+: CD 이미지 파일을 마운트하기 위한 방법
+$ mount -t vfat /dev/sdb1 /mnt/usb
+: usb 메모리 (vfat)을 마운트 하기 위한 방법
+$ umount /mnt/usb
+$ umount /mnt/cdrom
+: 해당 파일 시스템을 언마운트 시키는 방법
+$ sync
+: 버퍼와 하드드라이버를 동기화 시킴
+
+
+- 리눅스에서는 로그인시 항상 /etc/bashrc 파일을 읽어들임.
+- [root@localhost ~]#: root 유저, localhost라는 호스트에 접속, #은 슈퍼유저, $는 일반유저
+- 장치 관련
+$ mount -t ext3 /dev/hda1 /backup
+: ext3 타입으로 mount 시키는 방법.
+ +/dev/tty: 프로그램이 실행되고 있는 터미널 윈도우 또는 콘솔
+ +/dev/hda1: IDE 하드 디스크의 첫 번째 파티션
+ +/dev/sda1: SCSI, S-ATA 하드 디스크의 첫 번째 파티
+- 환경변수는 모두 대문자로 설정되어 있음
+- 표준 입출력: 표준 입력{키보드}(fd = 0), 표준 출력{모니터}(fd = 1), 표준 에러{모니터}(fd=2)
+- 퍼미션 명령들
+ + chmod: 파일, 디렉터리 접근 권한을 변경하는 명령
+ + su: 일시적으로 슈퍼유저 또는 다른 유저로 전환하는 명령
+ +  chown: 파일, 디렉터리 소유자를 변경하는 명령
+ + chgrp: 파일, 디렉터리의 그룹소유자를 변경하는 명령
+- 윈도우 cmd에서 기본 유저 설정: c:\> ubuntu config --default-user root(혹은 yamp 등)
+
+@ Chapter2 Summary
+
+- 리눅스 부팅 과정
+ 1. init 프로세스(pid = 1) 수행
+ 2. init process가 시스템을 초기화하고 터미널 라인을 오픈하기 위한 작업 시작
+    stdin, stdout, stderr를 설정.
+	/etc/rc.d/init.d 디렉터리에 런레벨별로 설정되어 있는 쉘 스크립트 실행.
+ 3. init과 연결된 프로세스들이 자신의 PID를 가지고 생성
+- 프로세스와 쉘
+ + 프로세스: 유일한 PID 번호에 의해 식별될 수 있는 실행 프로그램
+ + 커널: 프로세스를 제어하고 관리
+- 시스템 콜: 프롬프트 또는 쉘 스크립트로부터 명령을 실행했을 때
+             쉘은 빌트인 내부 코드 또는 디스크 저장장치에서 명령을 찾고 실행 명령 정렬.
+             위와 같은 작업이 커널에서 이루어지는 과정
+ + fork: 콜 ps의 복사본을 생성. CPU를 공유하는 자식 ps 생성.
+ + wait: 자식 ps 하나가 종료될 때까지 부모 ps를 대기상태로 유지.
+         성공시, 자식 ps 종료, 종료상태를 가지고 있는 자식 ps의 PID 리턴.
+ 	  	 자식 ps 보다 부모 ps가 먼저 종료 된다면, init ps는  자식 ps를 좀비 ps 만듦.
+		 따라서, 부모 ps 대기상태로 만들 뿐 아니라 ps 정상 종료를 보증.
+ + exec: 자식 쉘 수행 과정. 터미널 명령 수행 > fork > 자식 쉘은 타이핑된 명령 수행.
+		 쉘은 새 prog를 위해 PATH 검색 > prog 발견 > exec 시스템 콜 호출 > 새 prog 오버랩.
+ + exit: 새 prog는 exit 시스템 콜을 실행. 언제라도 중지 가능.
+   	  	 자식 ps 종료시 sigchild 시그널을 보냄. 이를 부모 ps가 기다림.
+		 종료상태 0은 prog 실행 성공, !0은 실패
+ + ls를 입력할 시 ps 전 과정
+  1. 부모 쉘은 자식 ps를 fork 후 대기상태
+  2. 자식 쉘은 ls prog를 exec 시스템 콜로 호출.
+  3. ls prog는 자식 쉘에서 실행되고, 부모로부터 모든 환경변수 등 정보들 물려 받음
+  4. 새 prog 종료시, 자식 쉘 종료 후 부모 쉘은 깨어남.
+  +. 마지막 명령의 종료상태는 $ echo $?를 통해 확인
+- ps 종료: Ctrl C, Ctrl \
+
+ 
