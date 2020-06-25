@@ -1,2 +1,2 @@
-{printf "안녕하세요! %s%s 님\n", $1, $2}
-{print ">> ", $0}
+BEGIN{ FS=" "; name=ARGV[2]; delete ARGV[2]}
+$2 ~ name { print $0 }
