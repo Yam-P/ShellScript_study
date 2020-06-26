@@ -80,8 +80,10 @@ $ ls [![:upper:]].*
 : 소문자로 끝나는 모든 파일 나열
 
 * REDIRECTION 예제
+$ ls -l | grep "hi.*" . >& /dev/null
+: hi가 들어간 파일명을 찾은 후, 출력하지 않고 쓰레기 통으로.
 $ cat /dev/null 2>&1 &
-: 표준출력 1이 전달되는 곳으로 표준 에러2도 전달. 이를 백그라운드에서 수행
+: 표준출력 1이 전달되는 곳으로 표준에러2도 전달. 이를 백그라운드에서 수행
 $ sort < ls.txt
 : ls.txt를 입력파일로 설정하여 sort시키기  
 $ cat <<- FILE
@@ -171,7 +173,8 @@ $ setterm -cursor off/on
 $ wall "Rebppt after 5 minutes. Please logout."
 : 모든 서버 접속자들에게 위와 같은 메세지를 보냄.
 $ write guest
-: guest 유저에게 해당 메세지. 적을 메세지를 적은 후 Ctrl C를 부르면 발송.
+: guest 유저에게 해당 메세지. 
+: 적을 메세지를 적은 후 Ctrl C를 부르면 발송.
 $ hostname
 : /etc/sysconfig/network 파일에 지정되어 있는 hostname을 출력.
 
@@ -219,7 +222,6 @@ $ PS1="$C_LIGHTBLUE\u:$C_GREEN\W $C_WHITE\$ $C_DEFAULT"
 $ PS2="--->"
 : 입력을 덜했을 때 나오는 >를 --->로 바꾸기. $ \ 명령 쳐보삼
 
-
 - 리눅스에서는 로그인시 항상 /etc/bashrc 파일을 읽어들임.
 - [root@localhost ~]#: root 유저, localhost라는 호스트에 접속, #은 슈퍼유저, $는 일반유저
 - 장치 관련
@@ -249,26 +251,31 @@ $ mount -t ext3 /dev/hda1 /backup
  + ps: 유일한 PID 번호에 의해 식별될 수 있는 실행 prog
  + 커널: ps를 제어하고 관리
 - 시스템 콜: 프롬프트 또는 쉘 스크립트로부터 명령을 실행했을 때
-             쉘은 빌트인 내부 코드 또는 디스크 저장장치에서 명령을 찾고 실행 명령 정렬.
+             쉘은 빌트인 내부 코드 또는 디스크 저장장치에서 
+			 명령을 찾고 실행 명령 정렬.
              위와 같은 작업이 커널에서 이루어지는 과정
  + fork: 콜 ps의 복사본을 생성. CPU를 공유하는 자식 ps 생성.
  + wait: 자식 ps 하나가 종료될 때까지 부모 ps를 대기상태로 유지.
          성공시, 자식 ps 종료, 종료상태를 가지고 있는 자식 ps의 PID 리턴.
- 	  	 자식 ps 보다 부모 ps가 먼저 종료 된다면, init ps는  자식 ps를 좀비 ps 만듦.
+ 	  	 자식 ps 보다 부모 ps가 먼저 종료 된다면, 
+		 init ps는  자식 ps를 좀비 ps 만듦.
 		 따라서, 부모 ps 대기상태로 만들 뿐 아니라 ps 정상 종료를 보증.
- + exec: 자식 쉘 수행 과정. 터미널 명령 수행 > fork > 자식 쉘은 타이핑된 명령 수행.
-		 쉘은 새 prog를 위해 PATH 검색 > prog 발견 > exec 시스템 콜 호출 > 새 prog 오버랩.
+ + exec: 자식 쉘 수행 과정. 
+   	 	 터미널 명령 수행 > fork > 자식 쉘은 타이핑된 명령 수행.
+		 쉘은 새 prog를 위해 PATH 검색 > prog 발견 
+		 > exec 시스템 콜 호출 > 새 prog 오버랩.
  + exit: 새 prog는 exit 시스템 콜을 실행. 언제라도 중지 가능.
    	  	 자식 ps 종료시 sigchild 시그널을 보냄. 이를 부모 ps가 기다림.
 		 종료상태 0은 prog 실행 성공, !0은 실패
  + ls를 입력할 시 ps 전 과정
   1. 부모 쉘은 자식 ps를 fork 후 대기상태
   2. 자식 쉘은 ls prog를 exec 시스템 콜로 호출.
-  3. ls prog는 자식 쉘에서 실행되고, 부모로부터 모든 환경변수 등 정보들 물려 받음
+  3. ls prog는 자식 쉘에서 실행되고, 
+	 부모로부터 모든 환경변수 등 정보들 물려 받음
   4. 새 prog 종료시, 자식 쉘 종료 후 부모 쉘은 깨어남.
   +. 마지막 명령의 종료상태는 $ echo $?를 통해 확인
 - ps 종료: Ctrl C, Ctrl \
-- 자식 쉘은 부모로부터 상속받은 변수를 변경 가능, 하지만 부모 쉘에 영향을 주지 못한다.
+- 자식 쉘은 부모에게 상속받은 변수 변경 가능, 하지만 부모 쉘에 영향을 안줌.
   $ export 변수명
   : 부모쉘에서 사용시 (자식쉘 $ bash를 통해 자식 쉘로 갈 수 있음) 환경변수 전달.
   : 자식쉘에서 수행해도 부모쉘에서 환경변수 사용불가
@@ -278,7 +285,8 @@ $ mount -t ext3 /dev/hda1 /backup
 @ Chapter 4 GREP
 
 $ grep -ni ls ~/.bash* | grep -v history
-: ~.bash로 시작하는 모든 파일에서 ls 문자열을 검색하되, 대소문자 무시, 줄번호 출력
+: ~.bash로 시작하는 모든 파일에서 ls 문자열을 검색하되, 
+  대소문자 무시, 줄번호 출력
 : history이 들어간 내용은 제거 후 출력
 $ grep -n [Kk]im test*
 : test로 시작하는 파일에서 K혹은 k로 시작되는 문자열 출력
@@ -359,8 +367,10 @@ $ ls -al | awk '/txt$/{print $8}' | awk 'BEGIN{FS="\n"; ORS=", "}{print $0}' | s
 AWK 문법
 @ if 조건문
 $ head -n 5 .txt | awk '{if($5>30000) print "TRUE"; else print "FALSE"}'
-: 파일 앞 5개 줄의 5번 째 필드가 3만보다 큰 경우 true를, 아닐 경우 false를 출력
-$ tail -n 4 .txt | awk -F: '{for(i=1;i<=NF;++i) {if(i!=NF){printf "%s ", $i} else{print ""}}}'
+: 파일 앞 5개 줄의 5번 째 필드가 3만보다 큰 경우 true를, 
+: 아닐 경우 false를 출력
+$ tail -n 4 .txt | awk -F: '{for(i=1;i<=NF;++i)\
+  {if(i!=NF){printf "%s ", $i} else{print ""}}}'
 : 파일 뒤 4개 줄을 :로 쪼개서, 조건에 따라 출력 (반복문 응용)
 : break, continue도 사용 가능
 $ head -n 1 .txt | awk '{i=1; while(i <= NF) {print $i; ++i}}'
@@ -383,8 +393,8 @@ $ awk '{name[x++]=$2}; END{for(i=0; i<NR; ++i) print i, name[i]}' .txt
 $ awk '{name[NR]=$2}; END{for(i=1; i<NR; ++i) print i, name[i]}' .txt
 : 위와 같은 명령이지만, 첫 값은 1부터 시작
 $ awk '/^압/{name[NR]=$2}; END{for(i in name) print name[i]}' .txt
-: '압'으로 시작하는 문장들의 두번째 필드들을 출력
-: 없는 경우 공백이 나오지만, 위와 같은 '특수 for문'을 사용하면 없는 애 출력 안함
+: '압'으로 시작하는 문장들의 두번째 필드들을 출력 없는 경우 공백.
+: 하지만, 위와 같은 '특수 for문'을 사용하면 없는 애 출력 안함
 $ awk '/임/{++name["임"]}; /홍/{name["홍"]}; \
 END{print "'임'의 개수: " name["임"] " '홍'의 개수: " name["홍"]}' .txt
 : 각 글자가 포함된 문자열 개수를 해시 형태로 저장.
@@ -449,3 +459,11 @@ $ awk '{if(match($2, /^구/)) {print substr($2,1,3)}}' .txt
 : 그 필드의 첫글자부터 세글자 출력
 $ awk 'BEGIN{print tolower(toupper("abcdefg"))}'
 : abcdefg를 대문자로 바꿧다가 다시 소문자로 바꾸는 함수.
+
+@ 연산
+$ echo 'scale=2; 10/3' | bc
+: 10/3의 결과를 소숫점 두자리까지 나타내기
+$ n=`echo 'scale=2; 10/3' | bc`
+: n이라는 환경변수에 3.33을 넣기
+$ m=`awk -v x=2.66 -v=5.22 'BEGIN{printf("res: %.2f\n", x*y)'`
+: "res: 13.89" 문자열을 m이라는 환경변수에 넣기.
