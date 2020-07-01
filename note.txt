@@ -313,6 +313,10 @@ $ grep '\<[A-Z].*n\> .txt
 
 @ Chapter 5 SED
 
+$ sed 'n;d'
+: n - 다음 입력 행을 첫 번째 명령어가 아닌 다음 명령어에서 처리하게 한다.
+: d - 행을 삭제한다
+
 $ sed -n '/^linux/p' .txt
 : linux로 시작하는 라인을 출력
 $ sed -n '/\<linux/p' .txt
